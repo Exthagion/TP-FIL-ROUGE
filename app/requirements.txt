@@ -1,0 +1,11 @@
+Pour lancer le code, il faut :
+
+fastapi
+uvicorn
+pydantic
+passlib[bcrypt]
+python-jose
+motor
+pytest
+httpx
+python-dotenv
