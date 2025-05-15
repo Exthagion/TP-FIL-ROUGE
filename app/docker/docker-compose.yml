@@ -2,29 +2,57 @@ version: '3.8'
 
 services:
   backend:
-    build: ./docker/backend
-    volumes:
-      - ./backend:/app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: secure_backend
+    restart: always
+    environment:
+      - MONGO_URL=http://127.0.0.1:27017/securedb
+      - JWT_SECRET=petitedouceur
+    depends_on:
+      - mongodb
+    networks:
+      - secure_network
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      retries: 3
 
   frontend:
-    build: ./docker/frontend
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "3000:3000"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: secure_frontend
+    restart: always
     depends_on:
       - backend
+    networks:
+      - secure_network
+    ports:
+      - "3000:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1"]
+      interval: 30s
+      retries: 3
 
-  mongo:
-    image: mongo
+  mongodb:
+    image: mongo:6
+    container_name: secure_mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - secure_network
     ports:
       - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
+    command: ["--bind_ip_all", "--auth"]
+
+networks:
+  secure_network:
+    driver: bridge
 
 volumes:
-  mongo-data:
+  mongo_data:

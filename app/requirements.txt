@@ -9,3 +9,5 @@ motor
 pytest
 httpx
 python-dotenv
+slowapi
+dompurify

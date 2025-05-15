@@ -11,10 +11,10 @@ def rate_limit(request: Request):
     current_time = time()
     attempts = login_attempts[ip]
 
-    # Remove outdated attempts
+    # Supprimer les essais
     login_attempts[ip] = [t for t in attempts if current_time - t < BLOCK_TIME]
 
     if len(login_attempts[ip]) >= MAX_ATTEMPTS:
-        raise HTTPException(status_code=429, detail="Too many login attempts. Try again later.")
+        raise HTTPException(status_code=429, detail="Trop de tentatives de connexion, veuillez réessayer plus tard.")
 
     login_attempts[ip].append(current_time)
